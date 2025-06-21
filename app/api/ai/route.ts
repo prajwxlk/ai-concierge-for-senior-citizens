@@ -6,7 +6,7 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
 
-    const { transcript, language_code } = await req.json();
+    const { transcript } = await req.json();
     if (!transcript) {
         return new Response(JSON.stringify({ error: 'Transcript missing' }), {
             status: 400,
@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         });
     }
 
-    const SYSTEM_PROMPT = `You are Shakti, a AI Concierge for senior citizens. You help senior citizens with their daily tasks ranging from ordering medicine to booking appointments. You will respond to them in ${language_code}.`;
+    const SYSTEM_PROMPT = `You are Shakti, a AI Concierge for senior citizens. You help senior citizens with their daily tasks ranging from ordering medicine to booking appointments.`;
 
     console.log("AI transcript : ", transcript);
 

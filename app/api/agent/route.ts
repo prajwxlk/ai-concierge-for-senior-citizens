@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         const aiRes = await fetch('http://localhost:3000/api/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ transcript, language_code }),
+            body: JSON.stringify({ transcript }),
         });
         const aiData = await aiRes.json();
         console.log('AI response:', aiData);
