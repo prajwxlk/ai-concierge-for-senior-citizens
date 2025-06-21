@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
-    console.log("🔉 Reached TTS")
   try {
+    console.log(req.body);
     // Expect JSON input
     const contentType = req.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    console.log("Body : ", body);
+    console.log("Body : ", body.text[0].content[0].text);
+    const content = body.text[0].content[0].text;
     const { text, target_language_code, speaker = 'anushka', model = 'bulbul:v2', pitch = 0.0, speed = 1.0, normalization = false } = body;
 
     if (!text || !target_language_code) {
@@ -19,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Prepare payload for Sarvam API
     const payload = {
-      text,
+      text: content,
       target_language_code,
       speaker,
       model,
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
     });
 
     const sarvamData = await sarvamRes.json();
+    // console.log(sarvamData.text[0].content);
     return NextResponse.json(sarvamData.audios[0], { status: sarvamRes.status });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });

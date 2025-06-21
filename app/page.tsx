@@ -77,11 +77,11 @@ export default function Home() {
                 const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
                 setAudioSnippets(snips => [...snips, audioBlob]);
 
-                // Send audioBlob to /api/stt as multipart/form-data
+                // Send audioBlob to /api/agent as multipart/form-data
                 try {
                   const formData = new FormData();
                   formData.append('file', audioBlob, 'recording.webm');
-                  const response = await fetch('/api/stt', {
+                  const response = await fetch('/api/agent', {
                     method: 'POST',
                     body: formData,
                   });
