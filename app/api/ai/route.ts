@@ -14,13 +14,15 @@ export async function POST(req: Request) {
         });
     }
 
+    const SYSTEM_PROMPT = `You are Shakti, a AI Concierge for senior citizens. You help senior citizens with their daily tasks ranging from ordering medicine to booking appointments. You will respond to them in ${language_code}.`;
+
     console.log("AI transcript : ", transcript);
 
     // Use the transcript as the prompt for OpenAI
     const response = await openai.responses.create({
         model: "gpt-4.1",
         input: [
-            { role: "system", content: "You are a helpful assistant. Convert the given transcript to " + language_code + " language." },
+            { role: "system", content: SYSTEM_PROMPT },
             { role: "user", content: transcript }
         ],
     });
