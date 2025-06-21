@@ -29,18 +29,11 @@ export async function POST(req: NextRequest) {
       body: forwardFormData,
     });
 
-    const sarvamContentType = sarvamRes.headers.get('content-type') || '';
     let sarvamData;
-    if (sarvamContentType.includes('application/json')) {
-      sarvamData = await sarvamRes.json();
-      return NextResponse.json(sarvamData, { status: sarvamRes.status });
-    } else {
-      sarvamData = await sarvamRes.text();
-      return new NextResponse(sarvamData, {
-        status: sarvamRes.status,
-        headers: { 'content-type': sarvamContentType },
-      });
-    }
+    sarvamData = await sarvamRes.json();
+    const transcript = sarvamData.transcript;
+    console.log(transcript);
+    return NextResponse.json(sarvamData, { status: sarvamRes.status });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }

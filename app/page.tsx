@@ -21,7 +21,7 @@ export default function Home() {
   const [vadStatus, setVadStatus] = useState<'idle' | 'recording' | 'processing'>('idle');
   const [audioSnippets, setAudioSnippets] = useState<Blob[]>([]);
   // Always initialize with a no-op to avoid undefined
-  const vadCleanupRef = useRef<() => void>(() => {});
+  const vadCleanupRef = useRef<() => void>(() => { });
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
@@ -73,42 +73,42 @@ export default function Home() {
               if (e.data.size > 0) chunksRef.current.push(e.data);
             };
             rec.onstop = async () => {
-  if (chunksRef.current.length > 0) {
-    const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-    setAudioSnippets(snips => [...snips, audioBlob]);
+              if (chunksRef.current.length > 0) {
+                const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+                setAudioSnippets(snips => [...snips, audioBlob]);
 
-    // Send audioBlob to /api/stt as multipart/form-data
-    try {
-      const formData = new FormData();
-      formData.append('file', audioBlob, 'recording.webm');
-      const response = await fetch('/api/stt', {
-        method: 'POST',
-        body: formData,
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log('[STT] Transcription result:', data);
-        // Optionally: handle/display the transcription result here
-      } else {
-        const errorText = await response.text();
-        console.error('[STT] Error from /api/stt:', errorText);
-      }
-    } catch (err) {
-      console.error('[STT] Network or server error:', err);
-    }
-  }
-  console.log('[VAD DEBUG] Recording stopped, processing...');
-  setVadStatus(prev => {
-    console.log('[VAD DEBUG] vadStatus change:', prev, '-> processing');
-    return 'processing';
-  });
-  setTimeout(() => {
-    setVadStatus(prev => {
-      console.log('[VAD DEBUG] vadStatus change:', prev, '-> idle');
-      return 'idle';
-    });
-  }, 300); // brief feedback
-};
+                // Send audioBlob to /api/stt as multipart/form-data
+                try {
+                  const formData = new FormData();
+                  formData.append('file', audioBlob, 'recording.webm');
+                  const response = await fetch('/api/stt', {
+                    method: 'POST',
+                    body: formData,
+                  });
+                  if (response.ok) {
+                    const data = await response.json();
+                    console.log('[STT] Transcription result:', data);
+                    // Optionally: handle/display the transcription result here
+                  } else {
+                    const errorText = await response.text();
+                    console.error('[STT] Error from /api/stt:', errorText);
+                  }
+                } catch (err) {
+                  console.error('[STT] Network or server error:', err);
+                }
+              }
+              console.log('[VAD DEBUG] Recording stopped, processing...');
+              setVadStatus(prev => {
+                console.log('[VAD DEBUG] vadStatus change:', prev, '-> processing');
+                return 'processing';
+              });
+              setTimeout(() => {
+                setVadStatus(prev => {
+                  console.log('[VAD DEBUG] vadStatus change:', prev, '-> idle');
+                  return 'idle';
+                });
+              }, 300); // brief feedback
+            };
             rec.start();
           },
           onVoiceStop: () => {
@@ -125,7 +125,7 @@ export default function Home() {
           threshold: 0.1,
           debounceTime: 250,
         });
-        vadCleanupRef.current = cleanup ?? (() => {});
+        vadCleanupRef.current = cleanup ?? (() => { });
       } catch (err) {
         // Handle mic errors
         setVadStatus('idle');
@@ -136,7 +136,7 @@ export default function Home() {
     }
     return () => {
       stopped = true;
-      (typeof vadCleanupRef.current === 'function' ? vadCleanupRef.current : () => {})();
+      (typeof vadCleanupRef.current === 'function' ? vadCleanupRef.current : () => { })();
       if (stream) stream.getTracks().forEach(track => track.stop());
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         mediaRecorderRef.current.stop();
