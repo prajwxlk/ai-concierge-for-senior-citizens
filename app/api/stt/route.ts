@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
   try {
+    console.log("✅ Reached STT")
     // Parse the incoming multipart/form-data
     const contentType = req.headers.get('content-type') || '';
     if (!contentType.includes('multipart/form-data')) {
@@ -33,7 +34,19 @@ export async function POST(req: NextRequest) {
     sarvamData = await sarvamRes.json();
     const transcript = sarvamData.transcript;
     console.log(transcript);
-    return NextResponse.json(sarvamData, { status: sarvamRes.status });
+
+    // Forward transcript to /api/ai
+    const aiRes = await fetch("http://localhost:3000/api/ai", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ transcript: transcript }),
+    });
+
+    console.log(aiRes);
+
+    return NextResponse.json({ status: sarvamRes.status });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }

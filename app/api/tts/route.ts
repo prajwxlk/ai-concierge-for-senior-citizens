@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function POST(req: NextRequest) {
+    console.log("🔉 Reached TTS")
   try {
     // Expect JSON input
     const contentType = req.headers.get('content-type') || '';
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
     });
 
     const sarvamData = await sarvamRes.json();
-    return NextResponse.json(sarvamData, { status: sarvamRes.status });
+    return NextResponse.json(sarvamData.audios[0], { status: sarvamRes.status });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
