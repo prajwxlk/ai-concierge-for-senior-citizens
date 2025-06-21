@@ -1,15 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { SarvamAIClient } from "sarvamai";
-import * as fs from "fs";
 
-if (!process.env.SARVAM_API_KEY) {
-  throw new Error("SARVAM_API_KEY is not defined");
-}
+export async function POST(req: NextRequest) {
+  try {
+    // Parse the incoming multipart/form-data
+    const contentType = req.headers.get('content-type') || '';
+    if (!contentType.includes('multipart/form-data')) {
+      return NextResponse.json({ error: 'Content-Type must be multipart/form-data' }, { status: 400 });
+    }
 
-export async function POST(request: NextRequest) {
+    // Convert the incoming request to a FormData object
+    const formData = await req.formData();
+    const file = formData.get('file');
+    if (!file || typeof file === 'string') {
+      return NextResponse.json({ error: 'File is required' }, { status: 400 });
+    }
 
-  const client = new SarvamAIClient({ apiSubscriptionKey: process.env.SARVAM_API_KEY });
-  const response = await client.speechToText.translate(fs.createReadStream("/path/to/your/file"), {});
+    // Prepare the form data for forwarding
+    const forwardFormData = new FormData();
+    forwardFormData.append('file', file, (file as File).name);
 
-  return NextResponse.json({ response });
+    // Forward the request to the Sarvam API
+    const sarvamRes = await fetch('https://api.sarvam.ai/speech-to-text-translate', {
+      method: 'POST',
+      headers: {
+        'api-subscription-key': process.env.SARVAM_API_KEY || '',
+        // 'Content-Type' will be set automatically by fetch when using FormData
+      },
+      body: forwardFormData,
+    });
+
+    const sarvamContentType = sarvamRes.headers.get('content-type') || '';
+    let sarvamData;
+    if (sarvamContentType.includes('application/json')) {
+      sarvamData = await sarvamRes.json();
+      return NextResponse.json(sarvamData, { status: sarvamRes.status });
+    } else {
+      sarvamData = await sarvamRes.text();
+      return new NextResponse(sarvamData, {
+        status: sarvamRes.status,
+        headers: { 'content-type': sarvamContentType },
+      });
+    }
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
+  }
 }

@@ -72,22 +72,43 @@ export default function Home() {
             rec.ondataavailable = e => {
               if (e.data.size > 0) chunksRef.current.push(e.data);
             };
-            rec.onstop = () => {
-              if (chunksRef.current.length > 0) {
-                setAudioSnippets(snips => [...snips, new Blob(chunksRef.current, { type: 'audio/webm' })]);
-              }
-              console.log('[VAD DEBUG] Recording stopped, processing...');
-              setVadStatus(prev => {
-                console.log('[VAD DEBUG] vadStatus change:', prev, '-> processing');
-                return 'processing';
-              });
-              setTimeout(() => {
-                setVadStatus(prev => {
-                  console.log('[VAD DEBUG] vadStatus change:', prev, '-> idle');
-                  return 'idle';
-                });
-              }, 300); // brief feedback
-            };
+            rec.onstop = async () => {
+  if (chunksRef.current.length > 0) {
+    const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
+    setAudioSnippets(snips => [...snips, audioBlob]);
+
+    // Send audioBlob to /api/stt as multipart/form-data
+    try {
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'recording.webm');
+      const response = await fetch('/api/stt', {
+        method: 'POST',
+        body: formData,
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[STT] Transcription result:', data);
+        // Optionally: handle/display the transcription result here
+      } else {
+        const errorText = await response.text();
+        console.error('[STT] Error from /api/stt:', errorText);
+      }
+    } catch (err) {
+      console.error('[STT] Network or server error:', err);
+    }
+  }
+  console.log('[VAD DEBUG] Recording stopped, processing...');
+  setVadStatus(prev => {
+    console.log('[VAD DEBUG] vadStatus change:', prev, '-> processing');
+    return 'processing';
+  });
+  setTimeout(() => {
+    setVadStatus(prev => {
+      console.log('[VAD DEBUG] vadStatus change:', prev, '-> idle');
+      return 'idle';
+    });
+  }, 300); // brief feedback
+};
             rec.start();
           },
           onVoiceStop: () => {
