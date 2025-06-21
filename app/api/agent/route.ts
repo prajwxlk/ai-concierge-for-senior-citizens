@@ -29,13 +29,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'STT failed', sttData }, { status: 500 });
         }
         const transcript = sttData.transcript;
+        const language_code = sttData.language_code;
         console.log("Transcript sent to /ai");
 
         // 3. Send transcript to /ai
         const aiRes = await fetch('http://localhost:3000/api/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ transcript }),
+            body: JSON.stringify({ transcript, language_code }),
         });
         const aiData = await aiRes.json();
         console.log('AI response:', aiData);
@@ -49,7 +50,7 @@ export async function POST(req: Request) {
         const ttsRes = await fetch('http://localhost:3000/api/tts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: aiOutput, target_language_code: 'en-IN', speaker: 'anushka' }),
+            body: JSON.stringify({ text: aiOutput, target_language_code: language_code, speaker: 'anushka' }),
         });
         let ttsData;
         try {

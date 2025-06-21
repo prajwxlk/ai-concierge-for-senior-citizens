@@ -18,6 +18,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Both text and target_language_code are required.' }, { status: 400 });
     }
 
+    console.log("Target Language Code : ", target_language_code);
+
     // Prepare payload for Sarvam API
     const payload = {
       text: content,

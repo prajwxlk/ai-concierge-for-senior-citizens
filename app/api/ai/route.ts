@@ -6,7 +6,7 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
 
-    const { transcript } = await req.json();
+    const { transcript, language_code } = await req.json();
     if (!transcript) {
         return new Response(JSON.stringify({ error: 'Transcript missing' }), {
             status: 400,
@@ -19,7 +19,10 @@ export async function POST(req: Request) {
     // Use the transcript as the prompt for OpenAI
     const response = await openai.responses.create({
         model: "gpt-4.1",
-        input: [{ role: "user", content: transcript }],
+        input: [
+            { role: "system", content: "You are a helpful assistant. Convert the given transcript to " + language_code + " language." },
+            { role: "user", content: transcript }
+        ],
     });
 
     // Extract the AI output (adjust property if needed)

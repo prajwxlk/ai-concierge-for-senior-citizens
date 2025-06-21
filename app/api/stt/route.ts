@@ -32,9 +32,10 @@ export async function POST(req: NextRequest) {
     let sarvamData;
     sarvamData = await sarvamRes.json();
     const transcript = sarvamData.transcript;
+    const language_code = sarvamData.language_code;
     console.log(transcript);
 
-    return NextResponse.json({ transcript }, { status: sarvamRes.status });
+    return NextResponse.json({ transcript, language_code }, { status: sarvamRes.status });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
   }
