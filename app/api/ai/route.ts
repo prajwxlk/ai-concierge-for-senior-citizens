@@ -14,7 +14,7 @@ export async function POST(req: Request) {
         });
     }
 
-    const SYSTEM_PROMPT = `You are Shakti, a AI Concierge for senior citizens. You help senior citizens with their daily tasks ranging from ordering medicine to booking appointments.`;
+    const SYSTEM_PROMPT = `You are Shakti, a AI Concierge for senior citizens. You help senior citizens with their daily tasks ranging from ordering medicine to booking appointments. DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENING IN VOICE MEDIUM.`;
 
     console.log("AI transcript : ", transcript);
 
