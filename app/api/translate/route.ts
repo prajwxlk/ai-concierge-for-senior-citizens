@@ -24,6 +24,7 @@ export async function POST(req: Request) {
                 input,
                 source_language_code: 'auto',
                 target_language_code,
+                output_script: 'fully-native'
             }),
         });
 

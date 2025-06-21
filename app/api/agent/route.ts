@@ -44,13 +44,29 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'AI failed', aiData }, { status: 500 });
         }
         const aiOutput = aiData.output;
+        const aiText = aiOutput[0].content[0].text;
         console.log("AI output sent to /tts");
+
+        //translate aiText to target_language_code
+        const translateRes = await fetch('http://localhost:3000/api/translate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ input: aiText, target_language_code: language_code }),
+        });
+        const translateData = await translateRes.json();
+        console.log('Translate response:', translateData);
+        if (!translateData.translated_text) {
+            return NextResponse.json({ error: 'Translation failed', translateData }, { status: 500 });
+        }
+        const translatedText = translateData.translated_text;
+        console.log("translatedText : ", translatedText);
+        console.log("Translated output sent to /tts");
 
         // 4. Send AI output to /tts
         const ttsRes = await fetch('http://localhost:3000/api/tts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: aiOutput, target_language_code: language_code, speaker: 'anushka' }),
+            body: JSON.stringify({ text: translatedText, target_language_code: language_code, speaker: 'anushka' }),
         });
         let ttsData;
         try {
