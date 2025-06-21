@@ -88,7 +88,33 @@ export default function Home() {
                   if (response.ok) {
                     const data = await response.json();
                     console.log('[STT] Transcription result:', data);
-                    // Optionally: handle/display the transcription result here
+                    // Play audio if present from /agent response
+                    if (data && data.audioContent) {
+                      // Helper: base64 to Blob
+                      const base64ToBlob = (b64Data: string, contentType = 'audio/mp3', sliceSize = 512) => {
+                        const byteCharacters = atob(b64Data);
+                        const byteArrays = [];
+                        for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+                          const slice = byteCharacters.slice(offset, offset + sliceSize);
+                          const byteNumbers = new Array(slice.length);
+                          for (let i = 0; i < slice.length; i++) {
+                            byteNumbers[i] = slice.charCodeAt(i);
+                          }
+                          const byteArray = new Uint8Array(byteNumbers);
+                          byteArrays.push(byteArray);
+                        }
+                        return new Blob(byteArrays, { type: contentType });
+                      };
+                      // Try to detect audio format (default to mp3)
+                      let audioType = 'audio/mp3';
+                      if (data.audioContent.startsWith('SUQz')) audioType = 'audio/wav'; // 'RIFF' in base64
+                      else if (data.audioContent.startsWith('UklG')) audioType = 'audio/wav';
+                      else if (data.audioContent.startsWith('AAAA')) audioType = 'audio/aac';
+                      const audioBlob = base64ToBlob(data.audioContent, audioType);
+                      const audioUrl = URL.createObjectURL(audioBlob);
+                      const audio = new Audio(audioUrl);
+                      audio.play().catch(e => console.error('Audio play failed:', e));
+                    }
                   } else {
                     const errorText = await response.text();
                     console.error('[STT] Error from /api/stt:', errorText);
