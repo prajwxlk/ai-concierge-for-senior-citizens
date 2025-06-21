@@ -9,7 +9,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { text, target_language_code, speaker = 'Anushka', model = 'bulbul:v2', pitch = 0.0, speed = 1.0, normalization = false } = body;
+    console.log("Body : ", body);
+    const { text, target_language_code, speaker = 'anushka', model = 'bulbul:v2', pitch = 0.0, speed = 1.0, normalization = false } = body;
 
     if (!text || !target_language_code) {
       return NextResponse.json({ error: 'Both text and target_language_code are required.' }, { status: 400 });
