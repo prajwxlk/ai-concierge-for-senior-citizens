@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Phone, X, Mic, MicOff, Volume2, Plus, Video, User } from 'lucide-react';
+import { getVAD } from './vad-helper';
 
 const KeypadButton = ({ value, subtext, onClick }: { value: string, subtext: string, onClick: (key: string) => void }) => (
   <button onClick={() => onClick(value)} className="flex flex-col items-center justify-center h-20 w-20 rounded-full bg-gray-200 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-transform transform hover:scale-105">
@@ -16,15 +17,119 @@ export default function Home() {
   const [callDuration, setCallDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isSpeaker, setIsSpeaker] = useState(true);
+  const [recording, setRecording] = useState(false);
+  const [vadStatus, setVadStatus] = useState<'idle' | 'recording' | 'processing'>('idle');
+  const [audioSnippets, setAudioSnippets] = useState<Blob[]>([]);
+  // Always initialize with a no-op to avoid undefined
+  const vadCleanupRef = useRef<() => void>(() => {});
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
+  // Call timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | null = null;
     if (isCalling) {
       interval = setInterval(() => {
         setCallDuration(prev => prev + 1);
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval !== null) clearInterval(interval);
+    };
+  }, [isCalling]);
+
+  // VAD + recording logic
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    let cleanup: (() => void) | undefined;
+    let stopped = false;
+    // Define audioContext in effect scope for cleanup
+    let audioContext: AudioContext | null = null;
+    async function startVad() {
+      if (!isCalling) return;
+      setVadStatus('idle');
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('[VAD DEBUG] Got microphone stream:', stream);
+        const vad = await getVAD();
+        console.log('[VAD DEBUG] Loaded VAD:', vad);
+        if (!vad) return;
+        // Create AudioContext for VAD (Safari/Chrome)
+        const AudioCtx = (window.AudioContext || (window as any).webkitAudioContext);
+        audioContext = new AudioCtx();
+        console.log('[VAD DEBUG] Created AudioContext:', audioContext);
+        cleanup = vad(audioContext, stream!, {
+          onVoiceStart: () => {
+            if (stopped) return;
+            console.log('[VAD DEBUG] Voice detected: onVoiceStart');
+            setVadStatus(prev => {
+              console.log('[VAD DEBUG] vadStatus change:', prev, '-> recording');
+              return 'recording';
+            });
+            chunksRef.current = [];
+            const rec = new MediaRecorder(stream!);
+            mediaRecorderRef.current = rec;
+            rec.ondataavailable = e => {
+              if (e.data.size > 0) chunksRef.current.push(e.data);
+            };
+            rec.onstop = () => {
+              if (chunksRef.current.length > 0) {
+                setAudioSnippets(snips => [...snips, new Blob(chunksRef.current, { type: 'audio/webm' })]);
+              }
+              console.log('[VAD DEBUG] Recording stopped, processing...');
+              setVadStatus(prev => {
+                console.log('[VAD DEBUG] vadStatus change:', prev, '-> processing');
+                return 'processing';
+              });
+              setTimeout(() => {
+                setVadStatus(prev => {
+                  console.log('[VAD DEBUG] vadStatus change:', prev, '-> idle');
+                  return 'idle';
+                });
+              }, 300); // brief feedback
+            };
+            rec.start();
+          },
+          onVoiceStop: () => {
+            console.log('[VAD DEBUG] Silence detected: onVoiceStop');
+            setVadStatus(prev => {
+              console.log('[VAD DEBUG] vadStatus change:', prev, '-> processing');
+              return 'processing';
+            });
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+              mediaRecorderRef.current.stop();
+            }
+          },
+          interval: 100,
+          threshold: 0.1,
+          debounceTime: 250,
+        });
+        vadCleanupRef.current = cleanup ?? (() => {});
+      } catch (err) {
+        // Handle mic errors
+        setVadStatus('idle');
+      }
+    }
+    if (isCalling) {
+      startVad();
+    }
+    return () => {
+      stopped = true;
+      (typeof vadCleanupRef.current === 'function' ? vadCleanupRef.current : () => {})();
+      if (stream) stream.getTracks().forEach(track => track.stop());
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop();
+      }
+      // Clean up AudioContext if created
+      if (audioContext && typeof audioContext.close === 'function') {
+        audioContext.close().then(() => {
+          console.log('[VAD DEBUG] AudioContext closed');
+        }).catch((err: unknown) => {
+          console.log('[VAD DEBUG] AudioContext close error:', err);
+        });
+      }
+      setVadStatus('idle');
+    };
   }, [isCalling]);
 
   const handleKeyPress = (key: string) => {
@@ -80,6 +185,14 @@ export default function Home() {
           <p className="text-3xl font-semibold">{phoneNumber}</p>
           <p className="text-lg text-gray-400">Calling...</p>
           <p className="text-lg text-gray-400 mt-2">{formatDuration(callDuration)}</p>
+          <div className="mt-8">
+            <p className="text-base">
+              {vadStatus === 'recording' && <span className="text-green-400">● Recording...</span>}
+              {vadStatus === 'processing' && <span className="text-yellow-400">Processing...</span>}
+              {vadStatus === 'idle' && <span className="text-gray-400">Listening for speech...</span>}
+            </p>
+            <p className="text-xs text-gray-500 mt-2">Snippets recorded: {audioSnippets.length}</p>
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-4 mb-8">
           <button onClick={() => setIsMuted(!isMuted)} className={`flex flex-col items-center p-4 rounded-lg transition-colors ${isMuted ? 'bg-yellow-500' : 'bg-gray-800'}`}>
