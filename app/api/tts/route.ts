@@ -32,7 +32,8 @@ export async function POST(req: NextRequest) {
       model,
       pitch,
       speed,
-      normalization
+      normalization,
+      enable_preprocessing: true
     };
 
     const sarvamRes = await fetch('https://api.sarvam.ai/text-to-speech', {
