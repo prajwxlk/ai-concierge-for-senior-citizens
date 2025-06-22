@@ -1,36 +1,28 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+use cases : 
 
-## Getting Started
+PNR & Train Enquiry	“What’s my train status?” – Reads out PNR status and booking details via voice or text.
 
-First, run the development server:
+Medicine Refill & Delivery	“Order Paracetamol” – Places medicine orders, confirms delivery, reads it out.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Doctor Appointment & Lab Tests	“Book a blood sugar test” – Helps find nearby clinics, books slot, sends confirmation.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Local Grocery & Essentials Ordering	“Buy wheat flour and milk” – Orders from kirana shops with voice confirmations.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Simple News & Weather Briefings	“Will it rain today?” – Reads current weather and advice in the local language.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Government Scheme Status	“Check my Ujjwala status” – Fetches scheme updates for Aadhaar‑linked benefits.
 
-## Learn More
+Bus & Local Transport Booking	“Book Amritsar–Lahore bus” – Picks route, confirms seat, sends SMS ticket.
 
-To learn more about Next.js, take a look at the following resources:
+Digital Literacy Tutorials	“How to send a photo on WhatsApp?” – Sends visual + TTS guides with step confirmations.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Local Handyman / Plumber Booking	“Book a plumber” – Finds nearby trusted handyman, confirms time and price.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Local Police Station & Emergency Info	“Nearest police station?” – Returns address and number of local authorities via maps lookup.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+To demonstrate : 3 use cases :
+1. Cab Ordering
+2. Grocery/Medicine Refill & Delivery
+3. government scheme status OR news/weather briefing
+4. wide vague use case - empowering them to use the internet ("there’s a festival this week, but I don’t know what it is or where it’s happening.”)
+5. personal check up automated (cron jobs)
