@@ -6,7 +6,7 @@ const openai = new OpenAI({
 });
 
 export async function POST(req: Request) {
-    const { transcript } = await req.json();
+    const { transcript, memory } = await req.json();
     if (!transcript) {
         return new Response(JSON.stringify({ error: 'Transcript missing' }), {
             status: 400,
@@ -14,7 +14,11 @@ export async function POST(req: Request) {
         });
     }
 
-    const SYSTEM_PROMPT = `You are Shakti, an AI Concierge for senior citizens. You help senior citizens with their daily tasks ranging from ordering medicine to booking appointments. You can use tools to perform tasks. DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENING IN VOICE MEDIUM.`;
+    const SYSTEM_PROMPT = `You are Shakti, an AI Concierge for senior citizens. You help senior citizens with their daily tasks ranging from ordering medicine to booking appointments. You can use tools to perform tasks. 
+    
+IMPORTANT: You MUST use the conversation memory to maintain context. If the user has shared their name or any personal information in previous messages, you MUST remember and use that information in your responses. For example, if they said "My name is X" earlier, and later ask "What's my name?", you should answer "Your name is X".
+
+DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENING IN VOICE MEDIUM.`;
 
     // Define tool schemas for function calling
     const functions = [
@@ -81,13 +85,35 @@ export async function POST(req: Request) {
         }
     ];
 
+    // Build messages array with memory context
+    let messages = [
+        { role: "system", content: SYSTEM_PROMPT }
+    ];
+    
+    // Add memory as context if available
+    if (Array.isArray(memory) && memory.length > 0) {
+        // Add memory items as alternating user/assistant messages
+        for (let i = 0; i < memory.length; i++) {
+            if (i % 2 === 0) {
+                // Even indices are user messages
+                messages.push({ role: "user", content: memory[i] });
+            } else {
+                // Odd indices are assistant messages
+                messages.push({ role: "assistant", content: memory[i] });
+            }
+        }
+    }
+    
+    // Add current transcript as the latest user message
+    // Only add if it's not already the last message from memory
+    if (!Array.isArray(memory) || memory.length === 0 || memory[memory.length - 1] !== transcript) {
+        messages.push({ role: "user", content: transcript });
+    }
+    
     // Call OpenAI with function calling enabled
     const response = await openai.chat.completions.create({
         model: "gpt-4.1",
-        messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: transcript }
-        ],
+        messages: messages as any, // Type as any to avoid TypeScript errors with message roles
         functions,
         function_call: "auto"
     });
@@ -124,14 +150,39 @@ export async function POST(req: Request) {
             toolResult = "Error parsing tool arguments.";
         }
         // Send the tool result back to the model for a final response
+        // Rebuild messages array with memory and function call results
+        let finalMessages = [
+            { role: "system", content: SYSTEM_PROMPT }
+        ];
+        
+        // Add memory as context if available
+        if (Array.isArray(memory) && memory.length > 0) {
+            // Add memory items as alternating user/assistant messages
+            for (let i = 0; i < memory.length; i++) {
+                if (i % 2 === 0) {
+                    // Even indices are user messages
+                    finalMessages.push({ role: "user", content: memory[i] });
+                } else {
+                    // Odd indices are assistant messages
+                    finalMessages.push({ role: "assistant", content: memory[i] });
+                }
+            }
+        }
+        
+        // Add current transcript, function call, and result
+        finalMessages.push({ role: "user", content: transcript });
+        // Handle the message content potentially being null
+        if (message.content) {
+            finalMessages.push({ role: message.role, content: message.content });
+        } else {
+            // If content is null, use empty string
+            finalMessages.push({ role: message.role, content: "" });
+        }
+        finalMessages.push({ role: "function", name, content: toolResult } as any);
+        
         const finalResponse = await openai.chat.completions.create({
             model: "gpt-4.1",
-            messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: transcript },
-                message,
-                { role: "function", name, content: toolResult }
-            ]
+            messages: finalMessages as any
         });
         const aiOutput = finalResponse.choices[0].message.content || "";
         return new Response(JSON.stringify({ output: aiOutput, toolResult }), {

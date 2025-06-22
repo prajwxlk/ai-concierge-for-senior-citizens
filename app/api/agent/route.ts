@@ -36,13 +36,33 @@ export async function POST(req: Request) {
         if (reqLang && typeof reqLang === 'string') {
             language_code = reqLang;
         }
+        
+        // Extract memory from form data
+        let memoryRaw = formData.get('memory');
+        console.log("memoryRaw : ", memoryRaw);
+        
+        // Parse memory and add current transcript
+        let memory: string[] = [];
+        if (memoryRaw && typeof memoryRaw === 'string') {
+            try {
+                memory = JSON.parse(memoryRaw);
+                if (!Array.isArray(memory)) memory = [];
+            } catch (e) {
+                console.error('Failed to parse memory:', e);
+            }
+        }
+        
+        console.log("memory before pushgin transcript : ", memory);
+        // Add current transcript to memory
+        memory.push(`User Response: ${transcript}`);
+        console.log("memory : ", memory);
         console.log("Transcript sent to /ai");
 
-        // 3. Send transcript to /ai
+        // 3. Send transcript to /ai with memory
         const aiRes = await fetch('http://localhost:3000/api/ai', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ transcript }),
+            body: JSON.stringify({ transcript, memory }),
         });
         const aiData = await aiRes.json();
         console.log('AI response:', aiData);
@@ -89,8 +109,12 @@ export async function POST(req: Request) {
         // 5. Respond with the audio base64 (property may be audioContent, base64, or audio)
         const audioBase64 = ttsData;
         console.log(audioBase64?.substring(0, 10));
-        // Also send language_code to frontend for first utterance
-        return NextResponse.json({ audioContent: audioBase64, language_code });
+        // Add AI response to memory
+        memory.push(`Shakti AI Response: ${aiOutput}`);
+        console.log("memory after pushin aiOutput : ", memory);
+        
+        // Return updated memory along with audio and language code
+        return NextResponse.json({ audioContent: audioBase64, language_code, memory });
     } catch (error: any) {
         return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
     }

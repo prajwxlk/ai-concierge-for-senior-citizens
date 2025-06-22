@@ -22,6 +22,9 @@ export default function Home() {
   const [recording, setRecording] = useState(false);
   const [vadStatus, setVadStatus] = useState<'idle' | 'recording' | 'processing'>('idle');
   const [audioSnippets, setAudioSnippets] = useState<Blob[]>([]);
+  const [memory, setMemory] = useState<string[]>([]);
+  // Use a ref to track the latest memory state for API calls
+  const memoryRef = useRef<string[]>([]);
   // Always initialize with a no-op to avoid undefined
   const vadCleanupRef = useRef<() => void>(() => { });
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -87,6 +90,8 @@ export default function Home() {
                   if (languageCode) {
                     formData.append('language_code', languageCode);
                   }
+                  // Always send the memory from the ref (which has the latest value)
+                  formData.append('memory', JSON.stringify(memoryRef.current));
                   const response = await fetch('/api/agent', {
                     method: 'POST',
                     body: formData,
@@ -96,6 +101,13 @@ export default function Home() {
                     // If languageCode is not set, set it from response
                     if (!languageCode && data.language_code) {
                       setLanguageCode(data.language_code);
+                    }
+                    // Update memory state with the memory returned from the API
+                    if (data.memory && Array.isArray(data.memory)) {
+                      console.log('[MEMORY] Updating memory with:', data.memory);
+                      setMemory(data.memory);
+                      // Update the ref immediately to ensure it's available for the next API call
+                      memoryRef.current = data.memory;
                     }
                     console.log('[STT] Transcription result:', data);
                     // Play audio if present from /agent response
@@ -209,6 +221,9 @@ export default function Home() {
     setIsCalling(false);
     setPhoneNumber('');
     setCallDuration(0);
+    // Reset memory when call ends
+    setMemory([]);
+    memoryRef.current = [];
   };
 
   const formatDuration = (seconds: number) => {
