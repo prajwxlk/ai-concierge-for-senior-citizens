@@ -16,6 +16,7 @@
     "openai": "^5.6.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
     "sarvamai": "^0.1.5-a1",
     "voice-activity-detection": "^0.0.5"
   },

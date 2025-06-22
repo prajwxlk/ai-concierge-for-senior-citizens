@@ -1,4 +1,5 @@
 import { OpenAI } from "openai";
+import toast from "react-hot-toast";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
@@ -102,6 +103,7 @@ export async function POST(req: Request) {
                 case "order_cab":
                     // Here, integrate with a real cab API
                     toolResult = `Cab ordered from ${args.pickup_location} to ${args.dropoff_location}${args.time ? ' at ' + args.time : ''}.`;
+                    toast.success(toolResult);
                     break;
                 case "order_grocery_or_medicine":
                     toolResult = `Ordered: ${args.items} to be delivered at ${args.delivery_address}.`;

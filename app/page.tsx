@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Phone, X, Mic, MicOff, Volume2, Plus, Video, User } from 'lucide-react';
 import { getVAD } from './vad-helper';
+import { Toaster } from 'react-hot-toast';
 
 const KeypadButton = ({ value, subtext, onClick }: { value: string, subtext: string, onClick: (key: string) => void }) => (
   <button onClick={() => onClick(value)} className="flex flex-col items-center justify-center h-20 w-20 rounded-full bg-gray-200 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition-transform transform hover:scale-105">
@@ -225,6 +226,7 @@ export default function Home() {
   if (isCalling) {
     return (
       <div className="flex flex-col h-screen bg-gray-900 text-white p-6">
+        <Toaster position="top-center" reverseOrder={false} />
         <div className="flex-grow flex flex-col items-center justify-center text-center">
           <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mb-4">
             <User size={48} />
