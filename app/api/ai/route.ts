@@ -203,6 +203,7 @@ RULES TO KEEP IN MIND WHILE RESPONDING :
                             })
                         });
                         const cabData = await cabRes.json();
+                        console.log("✅ Cab booking response : ", cabData);
                         toolResult = cabData.message || 'Cab booking response unavailable.';
                     } catch (err) {
                         toolResult = `Error placing cab order: ${err}`;
@@ -222,7 +223,8 @@ RULES TO KEEP IN MIND WHILE RESPONDING :
                             })
                         });
                         const groceryData = await groceryRes.json();
-                        toolResult = groceryData.message || 'Order response unavailable.';
+                        console.log("✅ Grocery/medicine ordering response : ", groceryData);
+                            toolResult = groceryData.message || 'Order response unavailable.';
                     } catch (err) {
                         toolResult = `Error placing grocery/medicine order: ${err}`;
                     }
@@ -241,6 +243,7 @@ RULES TO KEEP IN MIND WHILE RESPONDING :
                             })
                         });
                         const appointmentData = await appointmentRes.json();
+                        console.log("✅ Appointment booking response : ", appointmentData);
                         toolResult = appointmentData.message || 'Appointment booking response unavailable.';
                     } catch (err) {
                         toolResult = `Error booking appointment: ${err}`;
@@ -270,11 +273,12 @@ RULES TO KEEP IN MIND WHILE RESPONDING :
                             break;
                         }
                         const weatherData = await weatherRes.json();
-                        const current = weatherData.current_weather;
+                            const current = weatherData.current_weather;
                         if (!current) {
                             toolResult = `Weather data unavailable for ${args.location}.`;
                             break;
                         }
+                        console.log("✅ Weather data : ", weatherData);
                         toolResult = `Weather in ${resolvedName}${country ? ', ' + country : ''}: ${current.temperature}°C, wind ${current.windspeed} km/h, ${current.weathercode !== undefined ? 'code ' + current.weathercode : ''}.`;
                     } catch (err) {
                         toolResult = `Error fetching weather: ${err}`;
@@ -304,6 +308,7 @@ RULES TO KEEP IN MIND WHILE RESPONDING :
                             break;
                         }
                         const newsData = await newsRes.json();
+                        console.log("✅ News data : ", newsData);
                         if (!newsData.articles || newsData.articles.length === 0) {
                             toolResult = `No news found for ${args.topic}${args.location ? ' in ' + args.location : ''}.`;
                             break;
