@@ -1,5 +1,4 @@
 import { OpenAI } from "openai";
-import toast from "react-hot-toast";
 
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
