@@ -34,18 +34,27 @@ items (required): Comma-separated list of items to order.
 delivery_address (required): Where to deliver the items.
 When to use:
 Use this function when the user wants to order groceries, medicines, or other daily essentials for delivery. Ensure you have a clear list of items and a delivery address before proceeding. Allow user to say delivery_address as home, office, etc and not have to get specific.
-3. weather
+3. doctor_lab_appointment
+Purpose: Book a doctor or lab appointment for the user.
+Parameters:
+doctor_name (required): Name of the doctor or test/lab to book.
+date (required): Date of the appointment.
+time (required): Time of the appointment.
+When to use:
+Use this function when the user requests to book a doctor's appointment or a lab test. Always confirm the doctor's or lab's name, date, and time with the user before proceeding.
+4. weather
 Purpose: Get weather information for a location.
 Parameters:
 location (required): The location to get weather for.
 When to use:
 Use this function when the user asks about the weather, temperature, forecast, rain, or any climate-related information for a specific place. Always clarify the location if not provided.
-4. internet_search
+5. internet_search
 Purpose: Search the internet for information on any topic.
 Parameters:
 query (required): The search query.
 When to use:
 Use this function when the user asks a question or requests information that requires searching online, such as facts, general knowledge, or how-to queries. Formulate a concise query based on the user’s request.
+6. news_lookup
 5. news_lookup
 Purpose: Look up recent news on a specific topic or from a location.
 Parameters:
@@ -88,6 +97,19 @@ RULES TO KEEP IN MIND WHILE RESPONDING :
                     delivery_address: { type: "string", description: "Delivery address." },
                 },
                 required: ["items", "delivery_address"]
+            }
+        },
+        {
+            name: "doctor_lab_appointment",
+            description: "Book a doctor or lab appointment for the user.",
+            parameters: {
+                type: "object",
+                properties: {
+                    doctor_name: { type: "string", description: "Name of the doctor or test/lab to book." },
+                    date: { type: "string", description: "Date of the appointment (YYYY-MM-DD or similar)." },
+                    time: { type: "string", description: "Time of the appointment (HH:MM or similar)." }
+                },
+                required: ["doctor_name", "date", "time"]
             }
         },
         {
