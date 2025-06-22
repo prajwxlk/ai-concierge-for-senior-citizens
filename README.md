@@ -23,7 +23,9 @@ Local Police Station & Emergency Info	“Nearest police station?” – Returns 
 To demonstrate : 3 use cases :
 1. Cab Ordering - done
 2. Grocery/Medicine Refill & Delivery - done
-3. booking doctor/lab appointments
+3. booking doctor/lab appointments - done
+4. weather updates - done
+5. newscast - done
 
 issues that need to be fixed before launch : 
 - sarvam ai audio cutting off for longer conversation
