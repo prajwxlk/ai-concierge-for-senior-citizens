@@ -29,4 +29,3 @@ issues that need to be fixed before launch :
 - sarvam ai audio cutting off for longer conversation
 - sarvam ai not calling out numbers
 - sarvam ai sometimes not translating properly
-- logs dashboard not yet ready.
