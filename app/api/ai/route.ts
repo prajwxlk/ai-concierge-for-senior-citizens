@@ -124,22 +124,22 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
         try {
             const args = JSON.parse(argsRaw);
             switch (name) {
-                case "order_cab":
+                case "cab_booking":
                     // Here, integrate with a real cab API
                     toolResult = `Cab ordered from ${args.pickup_location} to ${args.dropoff_location}${args.time ? ' at ' + args.time : ''}.`;
                     toast.success(toolResult);
                     break;
-                case "order_grocery_or_medicine":
+                case "grocery_medicine_ordering":
                     toolResult = `Ordered: ${args.items} to be delivered at ${args.delivery_address}.`;
                     break;
-                case "get_govt_scheme_or_news_weather":
-                    toolResult = `Fetched info for: ${args.query}${args.location ? ' in ' + args.location : ''}.`;
+                case "weather":
+                    toolResult = `Weather information for ${args.location}: [Weather data would be fetched here].`;
                     break;
-                case "internet_empowerment_query":
-                    toolResult = `Searched internet for: ${args.user_query}${args.location ? ' in ' + args.location : ''}.`;
+                case "internet_search":
+                    toolResult = `Search results for: ${args.query}.`;
                     break;
-                case "personal_checkup":
-                    toolResult = `Scheduled/checkup for: ${args.checkup_type}${args.schedule ? ' with schedule ' + args.schedule : ''}.`;
+                case "news_lookup":
+                    toolResult = `News about ${args.topic}${args.location ? ' in ' + args.location : ''}.`;
                     break;
                 default:
                     toolResult = "Tool not implemented.";
