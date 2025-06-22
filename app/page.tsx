@@ -30,6 +30,13 @@ export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
 
+  // Reset memory on component mount
+  useEffect(() => {
+    console.log('[MEMORY] Initializing - clearing any existing memory');
+    setMemory([]);
+    memoryRef.current = [];
+  }, []);
+
   // Call timer
   useEffect(() => {
     let interval: NodeJS.Timeout | null = null;
@@ -52,6 +59,14 @@ export default function Home() {
     let audioContext: AudioContext | null = null;
     async function startVad() {
       if (!isCalling) return;
+      
+      // Verify memory is empty when starting a new call
+      if (memory.length > 0 || memoryRef.current.length > 0) {
+        console.warn('[MEMORY] Memory not empty when starting new call - forcing reset');
+        setMemory([]);
+        memoryRef.current = [];
+      }
+      
       setVadStatus('idle');
       try {
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -218,12 +233,15 @@ export default function Home() {
   };
 
   const handleEndCall = () => {
+    // Reset memory first when call ends to ensure it's cleared immediately
+    console.log('[MEMORY] Clearing conversation memory on call end');
+    setMemory([]);
+    memoryRef.current = [];
+    
+    // Then update other state
     setIsCalling(false);
     setPhoneNumber('');
     setCallDuration(0);
-    // Reset memory when call ends
-    setMemory([]);
-    memoryRef.current = [];
   };
 
   const formatDuration = (seconds: number) => {
