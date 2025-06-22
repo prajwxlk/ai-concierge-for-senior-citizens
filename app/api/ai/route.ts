@@ -169,9 +169,41 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
                 case "internet_search":
                     toolResult = `Search results for: ${args.query}.`;
                     break;
-                case "news_lookup":
-                    toolResult = `News about ${args.topic}${args.location ? ' in ' + args.location : ''}.`;
+                case "news_lookup": {
+                    // Fetch news from newsapi.org
+                    const apiKey = process.env.NEWSAPI_API_KEY;
+                    if (!apiKey) {
+                        toolResult = "News API key is missing. Please set NEWSAPI_API_KEY.";
+                        break;
+                    }
+                    const topic = encodeURIComponent(args.topic);
+                    let url = `https://newsapi.org/v2/top-headlines?q=${topic}&pageSize=3&apiKey=${apiKey}`;
+                    // If location is a valid country code, add it; otherwise, just search by topic
+                    if (args.location && /^[a-zA-Z]{2}$/.test(args.location.trim())) {
+                        url += `&country=${args.location.trim().toLowerCase()}`;
+                    }
+                    try {
+                        const newsRes = await fetch(url);
+                        if (!newsRes.ok) {
+                            toolResult = `Could not fetch news for ${args.topic}${args.location ? ' in ' + args.location : ''}.`;
+                            break;
+                        }
+                        const newsData = await newsRes.json();
+                        if (!newsData.articles || newsData.articles.length === 0) {
+                            toolResult = `No news found for ${args.topic}${args.location ? ' in ' + args.location : ''}.`;
+                            break;
+                        }
+                        // Summarize each article in one simple sentence
+                        const summaries = newsData.articles.slice(0, 3).map((a: any) => {
+                            // Prefer description, else fallback to title
+                            return a.description ? a.description.trim().replace(/\s+/g, ' ') : a.title;
+                        });
+                        toolResult = summaries.join(' ');
+                    } catch (err) {
+                        toolResult = `Error fetching news: ${err}`;
+                    }
                     break;
+                }
                 default:
                     toolResult = "Tool not implemented.";
             }
