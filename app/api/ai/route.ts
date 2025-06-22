@@ -18,7 +18,7 @@ export async function POST(req: Request) {
     
 IMPORTANT: You MUST use the conversation memory to maintain context. If the user has shared their name or any personal information in previous messages, you MUST remember and use that information in your responses. For example, if they said "My name is X" earlier, and later ask "What's my name?", you should answer "Your name is X".
 
-DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENING IN VOICE MEDIUM.`;
+DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENING IN VOICE MEDIUM. DO NOT REPLY WITH "Shakti AI Response:".`;
 
     // Define tool schemas for function calling
     const functions = [
