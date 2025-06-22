@@ -21,8 +21,6 @@ Local Handyman / Plumber Booking	“Book a plumber” – Finds nearby trusted h
 Local Police Station & Emergency Info	“Nearest police station?” – Returns address and number of local authorities via maps lookup.
 
 To demonstrate : 3 use cases :
-1. Cab Ordering
-2. Grocery/Medicine Refill & Delivery
-3. weather briefing - DONE
-4. news briefing - done
-4. wide vague use case - empowering them to use the internet ("there’s a festival this week, but I don’t know what it is or where it’s happening.”)
+1. Cab Ordering - done
+2. Grocery/Medicine Refill & Delivery - done
+3. booking doctor/lab appointments
