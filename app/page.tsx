@@ -13,6 +13,9 @@ const KeypadButton = ({ value, subtext, onClick }: { value: string, subtext: str
 );
 
 export default function Home() {
+  // ...existing state
+  const ttsAudioRef = useRef<HTMLAudioElement | null>(null); // <-- Track current TTS/AI audio
+
   const [languageCode, setLanguageCode] = useState<string | null>(null); // <-- store call language
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isCalling, setIsCalling] = useState(false);
@@ -149,7 +152,13 @@ export default function Home() {
                       else if (data.audioContent.startsWith('AAAA')) audioType = 'audio/aac';
                       const audioBlob = base64ToBlob(data.audioContent, audioType);
                       const audioUrl = URL.createObjectURL(audioBlob);
+                      // Stop previous audio if playing
+                      if (ttsAudioRef.current) {
+                        ttsAudioRef.current.pause();
+                        ttsAudioRef.current.currentTime = 0;
+                      }
                       const audio = new Audio(audioUrl);
+                      ttsAudioRef.current = audio;
                       audio.play().catch(e => console.error('Audio play failed:', e));
                     }
                   } else {
@@ -233,6 +242,11 @@ export default function Home() {
   };
 
   const handleEndCall = () => {
+    // Stop any playing TTS/AI audio
+    if (ttsAudioRef.current) {
+      ttsAudioRef.current.pause();
+      ttsAudioRef.current.currentTime = 0;
+    }
     // Reset memory first when call ends to ensure it's cleared immediately
     console.log('[MEMORY] Clearing conversation memory on call end');
     setMemory([]);
