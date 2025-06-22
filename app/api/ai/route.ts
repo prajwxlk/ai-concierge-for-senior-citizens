@@ -166,6 +166,25 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
                     }
                     break;
                 }
+                case "doctor_lab_appointment": {
+                    // Call the mock doctor/lab appointment API
+                    try {
+                        const appointmentRes = await fetch(`http://localhost:3000/api/mock-doctor-lab-appointment`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                doctor_name: args.doctor_name,
+                                date: args.date,
+                                time: args.time
+                            })
+                        });
+                        const appointmentData = await appointmentRes.json();
+                        toolResult = appointmentData.message || 'Appointment booking response unavailable.';
+                    } catch (err) {
+                        toolResult = `Error booking appointment: ${err}`;
+                    }
+                    break;
+                }
                 case "weather": {
                     // Use Open-Meteo API: Geocode location, then get weather
                     const location = encodeURIComponent(args.location);
