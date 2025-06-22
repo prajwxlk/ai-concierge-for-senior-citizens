@@ -7,6 +7,9 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
     const { transcript, memory } = await req.json();
+
+    // Hardcode the base URL for local development
+    const baseUrl = 'http://localhost:3000';
     if (!transcript) {
         return new Response(JSON.stringify({ error: 'Transcript missing' }), {
             status: 400,
@@ -124,14 +127,45 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
         try {
             const args = JSON.parse(argsRaw);
             switch (name) {
-                case "cab_booking":
-                    // Here, integrate with a real cab API
-                    toolResult = `Cab ordered from ${args.pickup_location} to ${args.dropoff_location}${args.time ? ' at ' + args.time : ''}.`;
-                    toast.success(toolResult);
+                case "cab_booking": {
+                    // Call the mock cab ordering API
+                    try {
+                        const cabRes = await fetch(`http://localhost:3000/api/mock-cab-ordering`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                pickup_location: args.pickup_location,
+                                dropoff_location: args.dropoff_location,
+                                time: args.time,
+                                platform: args.platform || 'uber' // Default to uber if not provided
+                            })
+                        });
+                        const cabData = await cabRes.json();
+                        toolResult = cabData.message || 'Cab booking response unavailable.';
+                    } catch (err) {
+                        toolResult = `Error placing cab order: ${err}`;
+                    }
                     break;
-                case "grocery_medicine_ordering":
-                    toolResult = `Ordered: ${args.items} to be delivered at ${args.delivery_address}.`;
+                }
+                case "grocery_medicine_ordering": {
+                    // Call the mock grocery/medicine ordering API
+                    try {
+                        const groceryRes = await fetch(`http://localhost:3000/api/mock-grocery-medicine-ordering`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                items: args.items,
+                                delivery_address: args.delivery_address,
+                                platform: args.platform || 'swiggy' // Default to swiggy if not provided
+                            })
+                        });
+                        const groceryData = await groceryRes.json();
+                        toolResult = groceryData.message || 'Order response unavailable.';
+                    } catch (err) {
+                        toolResult = `Error placing grocery/medicine order: ${err}`;
+                    }
                     break;
+                }
                 case "weather": {
                     // Use Open-Meteo API: Geocode location, then get weather
                     const location = encodeURIComponent(args.location);
