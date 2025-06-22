@@ -16,9 +16,11 @@ export async function POST(req: NextRequest) {
     const speed = body.speed || 1.0;
     const normalization = body.normalization || false;
 
+    // NOTE: target_language_code must be provided by the caller (usually /api/agent). If not provided, TTS cannot proceed.
     if (!content || !target_language_code) {
-      return NextResponse.json({ error: 'Both text and target_language_code are required.' }, { status: 400 });
+      return NextResponse.json({ error: 'Both text and target_language_code are required for TTS. Ensure that /api/agent is passing the correct language_code for the conversation.' }, { status: 400 });
     }
+    // If language detection from text is desired in the future, implement here.
     console.log("after content")
     // Sanitize content: remove emojis and unsupported chars (keep Devanagari, spaces, and basic punctuation)
     const sanitizedContent = content.replace(/[^\u0900-\u097F .,?!\-]/g, '');

@@ -13,6 +13,7 @@ const KeypadButton = ({ value, subtext, onClick }: { value: string, subtext: str
 );
 
 export default function Home() {
+  const [languageCode, setLanguageCode] = useState<string | null>(null); // <-- store call language
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isCalling, setIsCalling] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -82,12 +83,20 @@ export default function Home() {
                 try {
                   const formData = new FormData();
                   formData.append('file', audioBlob, 'recording.webm');
+                  // If we have a languageCode, include it for subsequent requests
+                  if (languageCode) {
+                    formData.append('language_code', languageCode);
+                  }
                   const response = await fetch('/api/agent', {
                     method: 'POST',
                     body: formData,
                   });
                   if (response.ok) {
                     const data = await response.json();
+                    // If languageCode is not set, set it from response
+                    if (!languageCode && data.language_code) {
+                      setLanguageCode(data.language_code);
+                    }
                     console.log('[STT] Transcription result:', data);
                     // Play audio if present from /agent response
                     if (data && data.audioContent) {

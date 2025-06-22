@@ -4,9 +4,11 @@ import { NextResponse } from 'next/server';
 export async function POST(req: Request) {
     try {
         const { input, target_language_code } = await req.json();
+        // NOTE: target_language_code must be provided by the caller (usually /api/agent). If not provided, translation cannot proceed.
         if (!input || !target_language_code) {
-            return NextResponse.json({ error: 'input and target_language_code are required' }, { status: 400 });
+            return NextResponse.json({ error: 'input and target_language_code are required for translation. Ensure that /api/agent is passing the correct language_code for the conversation.' }, { status: 400 });
         }
+        // If language detection from input is desired in the future, implement here.
 
         // Prepare Sarvam API call
         const sarvamApiKey = process.env.SARVAM_API_KEY;

@@ -29,7 +29,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'STT failed', sttData }, { status: 500 });
         }
         const transcript = sttData.transcript;
-        const language_code = sttData.language_code;
+        // Accept language_code from the frontend if provided, else use detected
+        let language_code = sttData.language_code;
+        // Check if language_code is sent in the request (for subsequent calls)
+        const reqLang = formData.get('language_code');
+        if (reqLang && typeof reqLang === 'string') {
+            language_code = reqLang;
+        }
         console.log("Transcript sent to /ai");
 
         // 3. Send transcript to /ai
@@ -83,7 +89,8 @@ export async function POST(req: Request) {
         // 5. Respond with the audio base64 (property may be audioContent, base64, or audio)
         const audioBase64 = ttsData;
         console.log(audioBase64?.substring(0, 10));
-        return NextResponse.json({ audioContent: audioBase64 });
+        // Also send language_code to frontend for first utterance
+        return NextResponse.json({ audioContent: audioBase64, language_code });
     } catch (error: any) {
         return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 });
     }
