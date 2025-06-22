@@ -23,7 +23,7 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
     // Define tool schemas for function calling
     const functions = [
         {
-            name: "order_cab",
+            name: "cab_booking",
             description: "Order a cab for the user.",
             parameters: {
                 type: "object",
@@ -36,7 +36,7 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
             }
         },
         {
-            name: "order_grocery_or_medicine",
+            name: "grocery_medicine_ordering",
             description: "Order groceries or medicines for delivery.",
             parameters: {
                 type: "object",
@@ -48,39 +48,37 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
             }
         },
         {
-            name: "get_govt_scheme_or_news_weather",
-            description: "Get government scheme status, news, or weather briefing.",
+            name: "weather",
+            description: "Get weather information for a location.",
             parameters: {
                 type: "object",
                 properties: {
-                    query: { type: "string", description: "Query type: 'scheme', 'news', or 'weather'." },
-                    location: { type: "string", description: "Location for news/weather (optional)." },
+                    location: { type: "string", description: "Location to get weather for." },
+                },
+                required: ["location"]
+            }
+        },
+        {
+            name: "internet_search",
+            description: "Search the internet for information on any topic.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: { type: "string", description: "The search query." },
                 },
                 required: ["query"]
             }
         },
         {
-            name: "internet_empowerment_query",
-            description: "Help user explore the internet for events, festivals, or general queries.",
+            name: "news_lookup",
+            description: "Look up recent news on a specific topic or from a location.",
             parameters: {
                 type: "object",
                 properties: {
-                    user_query: { type: "string", description: "The user's open-ended question." },
-                    location: { type: "string", description: "Location for events (optional)." },
+                    topic: { type: "string", description: "News topic to search for." },
+                    location: { type: "string", description: "Location for news (optional)." },
                 },
-                required: ["user_query"]
-            }
-        },
-        {
-            name: "personal_checkup",
-            description: "Perform a personal check-up or schedule automated reminders.",
-            parameters: {
-                type: "object",
-                properties: {
-                    checkup_type: { type: "string", description: "Type of checkup or reminder (e.g., medicine, exercise, appointment)." },
-                    schedule: { type: "string", description: "Schedule or frequency (optional)." },
-                },
-                required: ["checkup_type"]
+                required: ["topic"]
             }
         }
     ];
