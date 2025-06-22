@@ -132,9 +132,40 @@ DO NOT REPLY WITH EMOJIS, DO NOT REPLY IN MARKDOWN, THIS CONVERSATION IS HAPPENI
                 case "grocery_medicine_ordering":
                     toolResult = `Ordered: ${args.items} to be delivered at ${args.delivery_address}.`;
                     break;
-                case "weather":
-                    toolResult = `Weather information for ${args.location}: [Weather data would be fetched here].`;
+                case "weather": {
+                    // Use Open-Meteo API: Geocode location, then get weather
+                    const location = encodeURIComponent(args.location);
+                    try {
+                        // Step 1: Geocode location to lat/lon
+                        const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${location}&count=1`);
+                        if (!geoRes.ok) {
+                            toolResult = `Could not geocode location: ${args.location}.`;
+                            break;
+                        }
+                        const geoData = await geoRes.json();
+                        if (!geoData.results || geoData.results.length === 0) {
+                            toolResult = `Location not found: ${args.location}.`;
+                            break;
+                        }
+                        const { latitude, longitude, name: resolvedName, country } = geoData.results[0];
+                        // Step 2: Fetch current weather
+                        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true`);
+                        if (!weatherRes.ok) {
+                            toolResult = `Could not fetch weather for ${args.location}.`;
+                            break;
+                        }
+                        const weatherData = await weatherRes.json();
+                        const current = weatherData.current_weather;
+                        if (!current) {
+                            toolResult = `Weather data unavailable for ${args.location}.`;
+                            break;
+                        }
+                        toolResult = `Weather in ${resolvedName}${country ? ', ' + country : ''}: ${current.temperature}°C, wind ${current.windspeed} km/h, ${current.weathercode !== undefined ? 'code ' + current.weathercode : ''}.`;
+                    } catch (err) {
+                        toolResult = `Error fetching weather: ${err}`;
+                    }
                     break;
+                }
                 case "internet_search":
                     toolResult = `Search results for: ${args.query}.`;
                     break;
