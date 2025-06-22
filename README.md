@@ -24,3 +24,15 @@ To demonstrate : 3 use cases :
 1. Cab Ordering - done
 2. Grocery/Medicine Refill & Delivery - done
 3. booking doctor/lab appointments
+
+issues that need to be fixed before launch : 
+- sarvam ai audio cutting off for longer conversation
+- sarvam ai not calling out numbers
+- sarvam ai sometimes not translating properly
+- ai unaware of all the capaoilities of function calls it has
+- ai is unable to detect or retain the language_code throughout the conversation
+- voice picking up empty noise and crashing
+- after hanging up, audio still being played. it should stop.
+- if user interrupts the ai while it's speaking, the ai should cancel voiceover and listen to what user has to say.
+- increase the length of time before onstop is triggered to allow users to finish their sentences.
+- logs dashboard not yet ready.
