@@ -185,7 +185,7 @@ export default function Home() {
             }
           },
           interval: 100,
-          threshold: 0.1,
+          threshold: 0.4,
           debounceTime: 250,
         });
         vadCleanupRef.current = cleanup ?? (() => { });
