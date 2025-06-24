@@ -16,7 +16,7 @@ Senior Citizens in India can make use of this as they can talk in their local la
 The way this works is that the user dials up the number to the agent, then they can tell the agent what they want or need. The agent can understand several indian languages so it understand what the user is trying to say. The agent then according to the user's input, calls appropriate functions which perform the task and the agent then responds to the user in the same language.
 
 Here's how it works : 
-User talks to the AI Agent -> Speech to Text Translate (Translate indian languages to english) -> Text sent to OpenAI -> OpenAI understands query and accordingly calls appropriate functions -> Appropriate function performs task -> OpenAI generates response -> Text to Speech (Speech is generated in the local language the user spoke in) -> Speech played on the clientside to respond to the user.
+![image](https://github.com/user-attachments/assets/3f81b205-2bfc-45bd-bde1-2f97661a9df0)
 
 Issues that need to be fixed before launch : 
 - sarvam ai audio cutting off for longer conversation
